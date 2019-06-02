@@ -1,0 +1,56 @@
+import random
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import norm
+import statistics
+
+def sim (tamanho_amostra, com_sem):
+    com_reposicao, sem_reposicao = [], []
+    votos = [1]*3000 + [0]*7000
+    if com_sem == 1:
+        for amostra in range(2000):
+            votos_com = random.choices(votos, k=tamanho_amostra)
+            if tamanho_amostra != 0:
+                p_chapeu_com = sum(votos_com)/tamanho_amostra
+            else:
+                p_chapeu_com = 0
+            com_reposicao.append (p_chapeu_com)
+        return com_reposicao
+    if com_sem == 0:
+        for amostra in range(2000):
+            votos_sem = random.sample(votos, k=tamanho_amostra)
+            if tamanho_amostra != 0:
+                p_chapeu_sem = sum(votos_sem)/tamanho_amostra
+            else:
+                p_chapeu_sem = 0
+            sem_reposicao.append(p_chapeu_sem)
+        return sem_reposicao
+
+def graph_hist (vetor, tamanho_amostra, com_sem):
+    plt.figure(figsize=(15,10))
+    u_amostral = statistics.mean(vetor)
+    desviopadrao_amostral = statistics.stdev(vetor)
+    plt.hist(vetor, bins='auto',density=1, facecolor='lightblue', alpha = 0.7, rwidth = 0.8)
+    if com_sem == 1:
+        plt.title('Simulacao com Reposicao para n =' + str(tamanho_amostra))
+    else:
+        plt.title('Simulacao sem Reposicao para n =' + str(tamanho_amostra))
+    
+    plt.xlabel('p_chapeu')
+    plt.ylabel('Frequencia')
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, len(vetor))
+    y = norm.pdf(x, u_amostral, desviopadrao_amostral)
+    plt.plot(x, y, 'r--')
+    plt.axvline(u_amostral, color='r', linestyle='dashed', linewidth=1)
+    plt.show()
+
+eleitores = 10000
+
+k = random.randrange(eleitores)
+graph_hist(sim(k,1), k, 1)
+graph_hist(sim(k,0), k, 0)
+graph_hist(sim(50,1),50, 1)
+graph_hist(sim(50,0),50, 0)
+graph_hist(sim(9000,1), 9000, 1)
+graph_hist(sim(9000,0), 9000, 0)
